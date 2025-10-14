@@ -15,15 +15,22 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Controlador para la simulación del algoritmo de planificación Round Robin con una cola de listos LIFO.
+ * <p>
+ * Este es el algoritmo más complejo. Introduce el concepto de "quantum" de tiempo y la expulsión
+ * (preemption) de procesos de la CPU.
+ */
 public class RoundRobinLifoController {
 
+    /** El quantum de tiempo. Un proceso solo puede estar en la CPU por este número de segundos antes de ser expulsado. */
     private static final int QUANTUM = 3;
 
+    //<editor-fold desc="FXML-Injected Fields">
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
     @FXML private TableColumn<Process, Integer> arrivalColumn;
@@ -41,6 +48,7 @@ public class RoundRobinLifoController {
 
     @FXML private VBox finishedProcessesVBox;
     @FXML private Button playPauseButton;
+    //</editor-fold>
 
     private Timeline timeline;
     private int timer = 0;
@@ -48,9 +56,13 @@ public class RoundRobinLifoController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
+
+    /** La cola de memoria. Se usa una LinkedList como Pila para la política LIFO. */
     private LinkedList<Process> memoryQueue = new LinkedList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
+
+    /** Contador para el quantum del proceso actual en la CPU. */
     private int quantumCounter = 0;
 
     @FXML
@@ -75,6 +87,7 @@ public class RoundRobinLifoController {
         processList.clear();
         Random rand = new Random();
         int arrivalTime = 0;
+        // Generar procesos con duraciones más largas para que la expulsión del Round Robin sea más evidente.
         for (int i = 1; i <= 5; i++) {
             processList.add(new Process(i, arrivalTime, rand.nextInt(6) + 3));
             arrivalTime += rand.nextInt(3);
@@ -108,6 +121,7 @@ public class RoundRobinLifoController {
         for (int t = 0; t <= timer; t++) {
             final int currentTick = t;
 
+            // 1. Llegada de procesos (LIFO)
             processList.stream()
                     .filter(p -> p.getArrivalTime() == currentTick)
                     .forEach(p -> {
@@ -119,31 +133,37 @@ public class RoundRobinLifoController {
                         }
                     });
 
+            // *** LÓGICA ROUND ROBIN ***
+            // 2. Expulsión por Quantum: Si un proceso ha agotado su quantum, es expulsado de la CPU.
             if (cpuProcess != null && quantumCounter >= QUANTUM) {
+                // Solo se devuelve a memoria si aún no ha terminado.
                 if (cpuProcess.getRemainingDuration() > 0) {
                     cpuProcess.setLocation("Memoria");
                     cpuProcess.setState("W");
-                    memoryQueue.addFirst(cpuProcess);
+                    memoryQueue.addFirst(cpuProcess); // Vuelve al principio de la cola LIFO.
                 }
-                cpuProcess = null;
+                cpuProcess = null; // La CPU queda libre.
             }
 
+            // 3. Asignación de CPU (LIFO)
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
                 cpuProcess = memoryQueue.removeFirst();
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
-                quantumCounter = 0;
+                quantumCounter = 0; // Se resetea el contador de quantum para el nuevo proceso.
             }
 
+            // 4. Trabajo de la CPU
             if (cpuProcess != null) {
                 cpuProcess.setRemainingDuration(cpuProcess.getRemainingDuration() - 1);
-                quantumCounter++;
+                quantumCounter++; // Se incrementa el contador de quantum del proceso actual.
 
+                // 5. Finalización de Proceso
                 if (cpuProcess.getRemainingDuration() <= 0) {
                     cpuProcess.setState("F");
                     cpuProcess.setLocation("Salida");
                     finishedOrderList.add(cpuProcess);
-                    cpuProcess = null;
+                    cpuProcess = null; // La CPU queda libre.
                 }
             }
         }
@@ -154,6 +174,7 @@ public class RoundRobinLifoController {
     private void updateUI() {
         timerLabel.setText(String.valueOf(timer));
 
+        // Para Round Robin, la etiqueta de la CPU muestra el progreso del quantum.
         if (cpuProcess != null) {
             cpuProcessLabel.setText("PID: " + cpuProcess.getPid() + " (" + quantumCounter + "/" + QUANTUM + ")");
         } else {
@@ -184,6 +205,7 @@ public class RoundRobinLifoController {
         }
     }
 
+    //<editor-fold desc="Event Handlers for Control Buttons">
     @FXML
     private void onPlayPauseButtonClick() {
         isPaused = !isPaused;
@@ -221,10 +243,12 @@ public class RoundRobinLifoController {
 
         cpuProcess = null;
         memoryQueue.clear();
+        quantumCounter = 0; // Resetear el contador de quantum.
         finishedOrderList.clear();
         finishedProcessesVBox.getChildren().clear();
         runSimulationStep(false);
         timer = 0;
         updateUI();
     }
+    //</editor-fold>
 }

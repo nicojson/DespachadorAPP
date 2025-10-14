@@ -19,8 +19,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Controlador para la simulación del algoritmo de planificación LIFO (Last-In, First-Out).
+ * <p>
+ * La estructura es idéntica a la del FifoController, pero la lógica de selección de procesos cambia.
+ */
 public class LifoController {
 
+    //<editor-fold desc="FXML-Injected Fields">
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
     @FXML private TableColumn<Process, Integer> arrivalColumn;
@@ -38,6 +44,7 @@ public class LifoController {
 
     @FXML private VBox finishedProcessesVBox;
     @FXML private Button playPauseButton;
+    //</editor-fold>
 
     private Timeline timeline;
     private int timer = 0;
@@ -45,6 +52,8 @@ public class LifoController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
+
+    /** La cola de memoria. Para LIFO, se usa una LinkedList como una Pila (Stack) para asegurar el comportamiento "último en entrar, primero en salir". */
     private LinkedList<Process> memoryQueue = new LinkedList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
@@ -108,12 +117,14 @@ public class LifoController {
                         if (!p.getState().equals("F")) {
                             p.setLocation("Memoria");
                             p.setState("W");
-                            memoryQueue.remove(p);
-                            memoryQueue.addFirst(p);
+                            memoryQueue.remove(p); // Se quita por si ya estaba (para moverlo al frente)
+                            memoryQueue.addFirst(p); // Se añade al PRINCIPIO de la lista.
                         }
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
+                // *** LÓGICA LIFO ***
+                // Se extrae el PRIMER elemento de la lista, que es el último que llegó.
                 cpuProcess = memoryQueue.removeFirst();
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
@@ -167,6 +178,7 @@ public class LifoController {
         }
     }
 
+    //<editor-fold desc="Event Handlers for Control Buttons">
     @FXML
     private void onPlayPauseButtonClick() {
         isPaused = !isPaused;
@@ -210,4 +222,5 @@ public class LifoController {
         timer = 0;
         updateUI();
     }
+    //</editor-fold>
 }

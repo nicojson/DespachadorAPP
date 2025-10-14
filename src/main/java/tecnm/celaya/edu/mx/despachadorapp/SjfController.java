@@ -19,8 +19,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Controlador para la simulación del algoritmo de planificación SJF (Shortest Job First).
+ * <p>
+ * La estructura es idéntica a la del FifoController, pero la lógica de selección de procesos cambia.
+ */
 public class SjfController {
 
+    //<editor-fold desc="FXML-Injected Fields">
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
     @FXML private TableColumn<Process, Integer> arrivalColumn;
@@ -38,6 +44,7 @@ public class SjfController {
 
     @FXML private VBox finishedProcessesVBox;
     @FXML private Button playPauseButton;
+    //</editor-fold>
 
     private Timeline timeline;
     private int timer = 0;
@@ -45,6 +52,8 @@ public class SjfController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
+
+    /** La cola de memoria. Para SJF, se usa una List para poder ordenarla fácilmente. */
     private List<Process> memoryQueue = new ArrayList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
@@ -113,7 +122,10 @@ public class SjfController {
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
+                // *** LÓGICA SJF ***
+                // 1. Ordenar la cola de memoria por duración, de menor a mayor.
                 memoryQueue.sort(Comparator.comparingInt(Process::getDuration));
+                // 2. Extraer el primer elemento, que ahora es el proceso más corto.
                 cpuProcess = memoryQueue.remove(0);
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
@@ -143,8 +155,9 @@ public class SjfController {
             cpuProcessLabel.setText("Libre");
         }
 
+        // Para SJF, es útil mostrar la duración de los procesos en espera para ver el orden.
         StringBuilder memoryText = new StringBuilder();
-        memoryQueue.sort(Comparator.comparingInt(Process::getDuration));
+        memoryQueue.sort(Comparator.comparingInt(Process::getDuration)); // Ordenar para visualización consistente.
         for (Process p : memoryQueue) {
             memoryText.append("PID: ").append(p.getPid()).append("(").append(p.getDuration()).append(") ");
         }
@@ -168,6 +181,7 @@ public class SjfController {
         }
     }
 
+    //<editor-fold desc="Event Handlers for Control Buttons">
     @FXML
     private void onPlayPauseButtonClick() {
         isPaused = !isPaused;
@@ -211,4 +225,5 @@ public class SjfController {
         timer = 0;
         updateUI();
     }
+    //</editor-fold>
 }
