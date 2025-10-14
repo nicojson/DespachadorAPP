@@ -15,12 +15,14 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
-public class FifoController {
+public class RoundRobinLifoController {
+
+    private static final int QUANTUM = 3;
 
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
@@ -46,9 +48,10 @@ public class FifoController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
-    private Queue<Process> memoryQueue = new LinkedList<>();
+    private LinkedList<Process> memoryQueue = new LinkedList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
+    private int quantumCounter = 0;
 
     @FXML
     public void initialize() {
@@ -73,7 +76,7 @@ public class FifoController {
         Random rand = new Random();
         int arrivalTime = 0;
         for (int i = 1; i <= 5; i++) {
-            processList.add(new Process(i, arrivalTime, rand.nextInt(5) + 2));
+            processList.add(new Process(i, arrivalTime, rand.nextInt(6) + 3));
             arrivalTime += rand.nextInt(3);
         }
         processStatusList.setAll(processList);
@@ -94,6 +97,7 @@ public class FifoController {
 
         cpuProcess = null;
         memoryQueue.clear();
+        quantumCounter = 0;
         finishedOrderList.clear(); // Clear for recalculation
         processStatusList.forEach(p -> {
             p.setLocation("");
@@ -103,24 +107,37 @@ public class FifoController {
 
         for (int t = 0; t <= timer; t++) {
             final int currentTick = t;
+
             processList.stream()
                     .filter(p -> p.getArrivalTime() == currentTick)
                     .forEach(p -> {
-                        if (!memoryQueue.contains(p) && !p.getState().equals("F")) {
+                        if (!p.getState().equals("F")) {
                             p.setLocation("Memoria");
                             p.setState("W");
-                            memoryQueue.add(p);
+                            memoryQueue.remove(p);
+                            memoryQueue.addFirst(p);
                         }
                     });
 
+            if (cpuProcess != null && quantumCounter >= QUANTUM) {
+                if (cpuProcess.getRemainingDuration() > 0) {
+                    cpuProcess.setLocation("Memoria");
+                    cpuProcess.setState("W");
+                    memoryQueue.addFirst(cpuProcess);
+                }
+                cpuProcess = null;
+            }
+
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
-                cpuProcess = memoryQueue.poll();
+                cpuProcess = memoryQueue.removeFirst();
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
+                quantumCounter = 0;
             }
 
             if (cpuProcess != null) {
                 cpuProcess.setRemainingDuration(cpuProcess.getRemainingDuration() - 1);
+                quantumCounter++;
 
                 if (cpuProcess.getRemainingDuration() <= 0) {
                     cpuProcess.setState("F");
@@ -138,7 +155,7 @@ public class FifoController {
         timerLabel.setText(String.valueOf(timer));
 
         if (cpuProcess != null) {
-            cpuProcessLabel.setText("PID: " + cpuProcess.getPid());
+            cpuProcessLabel.setText("PID: " + cpuProcess.getPid() + " (" + quantumCounter + "/" + QUANTUM + ")");
         } else {
             cpuProcessLabel.setText("Libre");
         }

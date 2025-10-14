@@ -17,10 +17,9 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
-public class FifoController {
+public class LifoController {
 
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
@@ -46,7 +45,7 @@ public class FifoController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
-    private Queue<Process> memoryQueue = new LinkedList<>();
+    private LinkedList<Process> memoryQueue = new LinkedList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
 
@@ -103,18 +102,20 @@ public class FifoController {
 
         for (int t = 0; t <= timer; t++) {
             final int currentTick = t;
+
             processList.stream()
                     .filter(p -> p.getArrivalTime() == currentTick)
                     .forEach(p -> {
-                        if (!memoryQueue.contains(p) && !p.getState().equals("F")) {
+                        if (!p.getState().equals("F")) {
                             p.setLocation("Memoria");
                             p.setState("W");
-                            memoryQueue.add(p);
+                            memoryQueue.remove(p);
+                            memoryQueue.addFirst(p);
                         }
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
-                cpuProcess = memoryQueue.poll();
+                cpuProcess = memoryQueue.removeFirst();
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
             }
