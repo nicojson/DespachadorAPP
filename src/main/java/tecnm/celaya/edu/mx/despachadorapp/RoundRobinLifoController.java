@@ -98,7 +98,7 @@ public class RoundRobinLifoController {
         cpuProcess = null;
         memoryQueue.clear();
         quantumCounter = 0;
-        finishedOrderList.clear(); // Clear for recalculation
+        finishedOrderList.clear();
         processStatusList.forEach(p -> {
             p.setLocation("");
             p.setState("");
@@ -142,7 +142,7 @@ public class RoundRobinLifoController {
                 if (cpuProcess.getRemainingDuration() <= 0) {
                     cpuProcess.setState("F");
                     cpuProcess.setLocation("Salida");
-                    finishedOrderList.add(cpuProcess); // Add to list in order of finishing
+                    finishedOrderList.add(cpuProcess);
                     cpuProcess = null;
                 }
             }
@@ -166,7 +166,6 @@ public class RoundRobinLifoController {
         }
         memoryProcessLabel.setText(memoryText.length() > 0 ? memoryText.toString() : "Vacía");
 
-        // Update finished processes from the ordered list
         finishedProcessesVBox.getChildren().clear();
         for (Process p : finishedOrderList) {
             Text textNode = new Text("PID: " + p.getPid());
@@ -222,7 +221,7 @@ public class RoundRobinLifoController {
 
         cpuProcess = null;
         memoryQueue.clear();
-        finishedOrderList.clear(); // Clear on restart
+        finishedOrderList.clear();
         finishedProcessesVBox.getChildren().clear();
         runSimulationStep(false);
         timer = 0;

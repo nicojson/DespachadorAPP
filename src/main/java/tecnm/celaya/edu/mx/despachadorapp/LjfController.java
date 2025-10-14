@@ -113,7 +113,6 @@ public class LjfController {
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
-                // LJF Logic: Find the process with the longest duration in memory
                 memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed());
                 cpuProcess = memoryQueue.remove(0);
                 cpuProcess.setLocation("CPU");
@@ -145,7 +144,7 @@ public class LjfController {
         }
 
         StringBuilder memoryText = new StringBuilder();
-        memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed()); // Show sorted in UI
+        memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed());
         for (Process p : memoryQueue) {
             memoryText.append("PID: ").append(p.getPid()).append("(").append(p.getDuration()).append(") ");
         }
