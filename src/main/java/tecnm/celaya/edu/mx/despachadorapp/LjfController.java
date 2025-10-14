@@ -19,8 +19,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Controlador para la simulación del algoritmo de planificación LJF (Longest Job First).
+ * <p>
+ * La lógica es idéntica a SJF, pero el comparador se invierte para seleccionar el trabajo más largo.
+ */
 public class LjfController {
 
+    //<editor-fold desc="FXML-Injected Fields">
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
     @FXML private TableColumn<Process, Integer> arrivalColumn;
@@ -38,6 +44,7 @@ public class LjfController {
 
     @FXML private VBox finishedProcessesVBox;
     @FXML private Button playPauseButton;
+    //</editor-fold>
 
     private Timeline timeline;
     private int timer = 0;
@@ -45,6 +52,8 @@ public class LjfController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
+
+    /** La cola de memoria. Para LJF, se usa una List para poder ordenarla fácilmente. */
     private List<Process> memoryQueue = new ArrayList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
@@ -113,8 +122,10 @@ public class LjfController {
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
-                // LJF Logic: Find the process with the longest duration in memory
+                // *** LÓGICA LJF ***
+                // 1. Ordenar la cola por duración, pero en orden descendente (de mayor a menor).
                 memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed());
+                // 2. Extraer el primer elemento, que ahora es el proceso más largo.
                 cpuProcess = memoryQueue.remove(0);
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
@@ -144,8 +155,9 @@ public class LjfController {
             cpuProcessLabel.setText("Libre");
         }
 
+        // Para LJF, también es útil mostrar la duración para ver el orden.
         StringBuilder memoryText = new StringBuilder();
-        memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed()); // Show sorted in UI
+        memoryQueue.sort(Comparator.comparingInt(Process::getDuration).reversed()); // Ordenar para visualización consistente.
         for (Process p : memoryQueue) {
             memoryText.append("PID: ").append(p.getPid()).append("(").append(p.getDuration()).append(") ");
         }
@@ -169,6 +181,7 @@ public class LjfController {
         }
     }
 
+    //<editor-fold desc="Event Handlers for Control Buttons">
     @FXML
     private void onPlayPauseButtonClick() {
         isPaused = !isPaused;
@@ -212,4 +225,5 @@ public class LjfController {
         timer = 0;
         updateUI();
     }
+    //</editor-fold>
 }
