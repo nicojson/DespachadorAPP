@@ -15,12 +15,11 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
-public class FifoController {
+public class SjfController {
 
     @FXML private TableView<Process> processTable;
     @FXML private TableColumn<Process, Integer> pidColumn;
@@ -46,7 +45,7 @@ public class FifoController {
 
     private ObservableList<Process> processList = FXCollections.observableArrayList();
     private ObservableList<Process> processStatusList = FXCollections.observableArrayList();
-    private Queue<Process> memoryQueue = new LinkedList<>();
+    private List<Process> memoryQueue = new ArrayList<>();
     private List<Process> finishedOrderList = new ArrayList<>();
     private Process cpuProcess = null;
 
@@ -114,7 +113,8 @@ public class FifoController {
                     });
 
             if (cpuProcess == null && !memoryQueue.isEmpty()) {
-                cpuProcess = memoryQueue.poll();
+                memoryQueue.sort(Comparator.comparingInt(Process::getDuration));
+                cpuProcess = memoryQueue.remove(0);
                 cpuProcess.setLocation("CPU");
                 cpuProcess.setState("X");
             }
@@ -144,8 +144,9 @@ public class FifoController {
         }
 
         StringBuilder memoryText = new StringBuilder();
+        memoryQueue.sort(Comparator.comparingInt(Process::getDuration));
         for (Process p : memoryQueue) {
-            memoryText.append("PID: ").append(p.getPid()).append(" ");
+            memoryText.append("PID: ").append(p.getPid()).append("(").append(p.getDuration()).append(") ");
         }
         memoryProcessLabel.setText(memoryText.length() > 0 ? memoryText.toString() : "Vacía");
 

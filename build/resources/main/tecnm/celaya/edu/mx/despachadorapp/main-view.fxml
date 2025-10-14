@@ -13,4 +13,8 @@
 
     <Label text="Bienvenido al Simulador de Algoritmos de Planificación"/>
     <Button text="Iniciar Simulación FIFO" onAction="#onFIFOButtonClick"/>
+    <Button text="Iniciar Simulación SJF" onAction="#onSJFButtonClick"/>
+    <Button text="Iniciar Simulación Round Robin + LIFO" onAction="#onRoundRobinLIFOButtonClick"/>
+    <Button text="Iniciar Simulación LIFO" onAction="#onLIFOButtonClick"/>
+    <Button text="Iniciar Simulación LJF" onAction="#onLJFButtonClick"/>
 </VBox>
