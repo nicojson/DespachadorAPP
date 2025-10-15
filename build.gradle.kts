@@ -2,12 +2,12 @@ plugins {
     java
     application
     id("org.javamodularity.moduleplugin") version "1.8.12"
-    id("org.openjfx.javafxplugin") version "0.0.13"
-    id("org.beryx.jlink") version "2.25.0"
+    id("org.openjfx.javafxplugin") version "0.1.0" //version mas reciente
+    id("org.beryx.jlink") version "2.26.0" //version mas reciente
 }
 
 group = "tecnm.celaya.edu.mx"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ val junitVersion = "5.10.2"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(23)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
@@ -50,10 +50,19 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// --- Configuración para crear el Instalador Nativo ---
 jlink {
-    imageZip.set(layout.buildDirectory.file("/distributions/app-${javafx.platform.classifier}.zip"))
     options.set(listOf("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages"))
     launcher {
-        name = "app"
+        name = "DespachadorApp"
+    }
+    jpackage {
+        // El nombre del instalador se genera automáticamente a partir del nombre y versión del proyecto.
+        installerType = "exe"
+        installerOptions.addAll(listOf(
+            "--win-shortcut",
+            "--win-menu",
+            "--win-dir-chooser"
+        ))
     }
 }
