@@ -65,3 +65,8 @@
 .finished-process-text {
     -fx-fill: white;
 }
+
+.cell-updated {
+    -fx-background-color: #4caf50; /* Green flash */
+    -fx-text-fill: white;
+}

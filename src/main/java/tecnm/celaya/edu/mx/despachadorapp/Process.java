@@ -9,8 +9,10 @@ import javafx.beans.property.SimpleStringProperty;
  * Esta clase es el modelo de datos fundamental. Contiene toda la información
  * relevante de un proceso, como su PID, tiempo de llegada y duración.
  * <p>
- * <b>IMPORTANTE:</b> Todos los atributos son {@link javafx.beans.property.Property} de JavaFX
- * (ej. {@link SimpleIntegerProperty}). Esto es crucial para que la interfaz de usuario (TableView)
+ * <b>IMPORTANTE:</b> Todos los atributos son
+ * {@link javafx.beans.property.Property} de JavaFX
+ * (ej. {@link SimpleIntegerProperty}). Esto es crucial para que la interfaz de
+ * usuario (TableView)
  * se actualice automáticamente cuando los valores de un proceso cambian.
  */
 public class Process {
@@ -18,20 +20,35 @@ public class Process {
     /** Identificador único del proceso. */
     private final SimpleIntegerProperty pid;
 
-    /** El segundo exacto en el que el proceso llega al sistema y está listo para ser admitido en la memoria. */
+    /**
+     * El segundo exacto en el que el proceso llega al sistema y está listo para ser
+     * admitido en la memoria.
+     */
     private final SimpleIntegerProperty arrivalTime;
 
-    /** La cantidad total de segundos de CPU que el proceso necesita para completarse. */
+    /**
+     * La cantidad total de segundos de CPU que el proceso necesita para
+     * completarse.
+     */
     private final SimpleIntegerProperty duration;
 
-    /** La ubicación actual del proceso en la simulación (ej. "Memoria", "CPU", "Salida"). */
+    /**
+     * La ubicación actual del proceso en la simulación (ej. "Memoria", "CPU",
+     * "Salida").
+     */
     private final SimpleStringProperty location;
 
     /** El estado actual del proceso (W=Waiting, X=Executing, F=Finished). */
     private final SimpleStringProperty state;
 
-    /** El tiempo de CPU que aún le falta al proceso para completarse. Se decrementa en cada tick de la CPU. */
+    /**
+     * El tiempo de CPU que aún le falta al proceso para completarse. Se decrementa
+     * en cada tick de la CPU.
+     */
     private final SimpleIntegerProperty remainingDuration;
+
+    /** El tamaño del proceso en KB. */
+    private final SimpleIntegerProperty size;
 
     public Process(int pid, int arrivalTime, int duration) {
         this.pid = new SimpleIntegerProperty(pid);
@@ -42,10 +59,12 @@ public class Process {
         this.location = new SimpleStringProperty("");
         this.state = new SimpleStringProperty("");
         this.remainingDuration = new SimpleIntegerProperty(duration);
+        this.size = new SimpleIntegerProperty(0); // Valor por defecto
     }
 
     // --- Getters y Setters ---
-    // Los métodos `*Property()` son necesarios para que la TableView pueda vincularse a estos atributos.
+    // Los métodos `*Property()` son necesarios para que la TableView pueda
+    // vincularse a estos atributos.
 
     public int getPid() {
         return pid.get();
@@ -105,5 +124,17 @@ public class Process {
 
     public void setRemainingDuration(int remainingDuration) {
         this.remainingDuration.set(remainingDuration);
+    }
+
+    public int getSize() {
+        return size.get();
+    }
+
+    public SimpleIntegerProperty sizeProperty() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size.set(size);
     }
 }

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tecnm.celaya.edu.mx.despachadorapp.LifoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tecnm.celaya.edu.mx.despachadorapp.LifoController">
    <left>
       <VBox prefHeight="200.0" prefWidth="250.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
@@ -21,8 +21,9 @@
             </Label>
             <TableView fx:id="processTable" prefHeight="400.0" prefWidth="200.0">
               <columns>
-                <TableColumn fx:id="pidColumn" prefWidth="75.0" text="PID" />
-                <TableColumn fx:id="arrivalColumn" prefWidth="75.0" text="Llegada" />
+                <TableColumn fx:id="pidColumn" prefWidth="50.0" text="PID" />
+                <TableColumn fx:id="arrivalColumn" prefWidth="50.0" text="Llegada" />
+                  <TableColumn fx:id="sizeColumn" prefWidth="75.0" text="Tamaño (KB)" />
                   <TableColumn fx:id="durationColumn" prefWidth="75.0" text="Duración" />
               </columns>
             </TableView>
@@ -49,22 +50,26 @@
                   </Label>
                </children>
             </HBox>
-            <HBox alignment="CENTER" spacing="30.0">
-               <children>
                   <VBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0" style="-fx-border-color: black; -fx-border-width: 2;">
                      <children>
                         <Label text="CPU" />
                         <Label fx:id="cpuProcessLabel" text="Libre" />
                      </children>
                   </VBox>
-                  <VBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" style="-fx-border-color: black; -fx-border-width: 2;">
-                     <children>
-                        <Label text="MEMORIA (LIFO)" />
-                        <Label fx:id="memoryProcessLabel" text="Vacía" />
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
+            <Label text="Tabla de Paginación">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <TableView fx:id="paginationTable" prefHeight="350.0" prefWidth="500.0">
+              <columns>
+                <TableColumn fx:id="pageNumberColumn" prefWidth="75.0" text="NO.PAG" />
+                <TableColumn fx:id="frameColumn" prefWidth="75.0" text="FRAGMENTO" />
+                  <TableColumn fx:id="pageProcessColumn" prefWidth="75.0" text="PROCESO" />
+                  <TableColumn fx:id="usedSpaceColumn" prefWidth="100.0" text="OCUPADO(KB)" />
+                  <TableColumn fx:id="freeSpaceColumn" prefWidth="100.0" text="LIBRE (KB)" />
+              </columns>
+            </TableView>
             <Label text="Estado de Procesos">
                <font>
                   <Font name="System Bold" size="14.0" />
@@ -106,6 +111,7 @@
             <Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#onPlayPauseButtonClick" text="Pausa" />
             <Button fx:id="nextButton" mnemonicParsing="false" onAction="#onNextButtonClick" text="-&gt;" />
             <Button fx:id="restartButton" mnemonicParsing="false" onAction="#onRestartButtonClick" text="Reiniciar" />
+            <Button fx:id="exportButton" mnemonicParsing="false" onAction="#onExportButtonClick" text="Exportar TXT" />
          </children>
       </HBox>
    </bottom>
